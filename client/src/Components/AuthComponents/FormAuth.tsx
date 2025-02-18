@@ -15,16 +15,20 @@ function FormAuth({ AuthThings }: { AuthThings: AuthThings }) {
     userpassword: "",
   });
 
+  const [Wait, setWait] = useState<boolean>(false)
+
   const UserFromContext = useContext(UserContext)
 
   const [ErrorMessages, setErrorMessages] = useState<string | null>(null);
   const HandleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     if ((AuthThings == "login" && User?.username) || User?.userpassword) {
+      setWait(true)
       LoginUser(User)
         .then((data) => {
           const UserCookie = Cookies.get("user")
           if(UserCookie){
+            setWait(false)
             localStorage.setItem("user", UserCookie)
             UserFromContext?.setUser(data.data.data)
           }
@@ -32,7 +36,9 @@ function FormAuth({ AuthThings }: { AuthThings: AuthThings }) {
         .catch((err) => {
           console.log(err)
           setErrorMessages(err.message);
+          setWait(false)
           setInterval(() => setErrorMessages(""), 2000);
+
         });
     } else {
       setErrorMessages("Llene las credenciales");
@@ -71,9 +77,9 @@ function FormAuth({ AuthThings }: { AuthThings: AuthThings }) {
         onChange={HandleChangePassword}
       />
       <br />
-      <button className="px-3 py-1 border-2 mt-2">
+      {Wait ? <h1>Cargando</h1>: <button className="px-3 py-1 border-2 mt-2">
         {AuthThings == "login" ? "Inicia sesión" : "Registrate"}
-      </button>
+      </button>}
       <ErrorMessage ErrorMessage={ErrorMessages} />
     </form>
   );
