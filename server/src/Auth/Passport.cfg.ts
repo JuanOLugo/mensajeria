@@ -8,6 +8,7 @@ const options: StrategyOptions = {
 
 passport.use(new Strategy(options, async (payload, done)  => {
     try {
+        console.log(payload)
         const user = await userModel.findById(payload._id)
         if(user) done(null, user)
         else done(null, false)
