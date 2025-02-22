@@ -2,10 +2,8 @@ import { Request, Response } from "express";
 import userModel from "../DB/models/user.model";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
-import mongoose from "mongoose";
-import { verify } from "crypto";
 
-interface DataToSend {
+export interface DataToSend {
   data?: object;
   message: string;
   type: "error" | "data" | "message";
@@ -38,7 +36,7 @@ export const RegisterUser = async (
     };
     return res
       .status(201)
-      .cookie("user", userToken, { httpOnly: true, secure: false })
+      .cookie("user", userToken)
       .send(InfoResponse);
   } catch (error) {
     const ErrorResponse: DataToSend = {

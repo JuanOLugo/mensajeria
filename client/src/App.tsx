@@ -1,7 +1,8 @@
-import { BrowserRouter, Route, Routes } from "react-router-dom";
+import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
 import SecurityRoute from "./Components/SecurityRoute";
-import Auth from "./Components/Auth";
+import Auth from "./Pages/Auth";
 import PublicRoute from "./Components/PublicRoute";
+import Chat from "./Pages/Chat";
 
 
 function App() {
@@ -15,11 +16,10 @@ function App() {
             <Route path="/auth" element={<Auth/>}/>
           </Route>
           <Route element={<SecurityRoute />}>
-            <Route path="/" element={<h1 className="cursor-pointer" onClick={() => {
-              localStorage.removeItem("user")
-              window.location.href = "/auth"
-            }}>chao!</h1>} />
+            <Route path="/" element={<Chat/>} />
           </Route>
+
+          <Route path="*" element={<Navigate to={"/"}/>} />
         </Routes>
       </BrowserRouter>
     </>
