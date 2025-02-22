@@ -10,6 +10,7 @@ import { GetUserChats } from "../Controllers/Chat.C";
 import { UserContextType } from "../contexts/UserContext";
 import WaitSource from "../Components/WaitSource";
 import RequestToJoinNotification from "../Components/RequestToJoinNotification";
+import Notification from "../Components/Notification";
 // Mock data (same as before)
 
 export interface IOnlineUsers {
@@ -42,10 +43,17 @@ export interface RequestNotification {
   userwant: string;
   userwantid: string;
 }
+
+interface Inotification {
+  message: string;
+  userrejecter: string;
+}
+
 export const socket = io("http://localhost:" + port, {
   autoConnect: false,
 });
 const Chat = () => {
+  const [UserNotification, setUserNotification] = useState<Inotification>();
   const [messageOfChat, setmessageOfChat] = useState<Array<ISingleMessage>>([]);
   const [ActiveChat, setActiveChat] = useState<IActiveChat>();
   const [Requests, setRequests] = useState<Array<RequestNotification>>([]);
@@ -57,12 +65,11 @@ const Chat = () => {
     recentChats: true,
   });
 
-  const { usersC, chatwindow, recentChats } = Wait;
+  const { recentChats } = Wait;
 
   const User = useContext(UserContext);
   const [isSidebarExpanded, setIsSidebarExpanded] = useState(true);
 
-  const [IsConnect, setIsConnect] = useState<boolean>(false);
   useEffect(() => {
     function SetUsersConnectAndDisconnect(
       { users }: { users: Array<IOnlineUsers> },
@@ -111,7 +118,7 @@ const Chat = () => {
         socket.emit("IsOffline", { userid: User?.User?._id })
       );
     }
-  }, [User, UserChats, IsConnect]);
+  }, [User, UserChats]);
 
   useEffect(() => {
     if (!User?.User?.username) return;
@@ -144,15 +151,20 @@ const Chat = () => {
 
     socket.on("new_chat_from_request", handleMessageOld);
 
+    socket.on("new_reject", (data) => {
+      setUserNotification(data);
+      setTimeout(() => {
+        setUserNotification(undefined);
+      }, 5000);
+    });
+
     socket.on("requestmessage", (data) => {
-      console.log(data);
       setRequests([...Requests, data]);
     });
 
     socket.on("newmessagechat", handleMessageNew);
 
     socket.on(User.User._id, (data) => {
-      console.log(data);
       setActiveChat({
         chatId: data._id,
         user: {
@@ -173,7 +185,7 @@ const Chat = () => {
     const userRecent = UserChats?.find((e) => {
       return e.users.find((u) => u._id === userId);
     });
-
+    console.log(userRecent)
     if (userRecent) {
       handleChatClick(userRecent._id);
     } else {
@@ -210,6 +222,15 @@ const Chat = () => {
 
   return (
     <div className="flex h-screen">
+      
+    {
+      UserNotification ?
+      <Notification
+        message={UserNotification?.message as ""}
+        user={UserNotification?.userrejecter as ""}
+      /> : null
+    }
+
       {Requests.length < 1
         ? null
         : Requests.map((r, i) => {
@@ -224,6 +245,7 @@ const Chat = () => {
               />
             );
           })}
+
       <MessageSidebar
         onlineUsers={onlineUsers}
         onUserClick={handleUserClick}

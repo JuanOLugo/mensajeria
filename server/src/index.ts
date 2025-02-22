@@ -79,8 +79,6 @@ io.on("connection", (socket) => {
     }
   });
 
- 
-
   socket.on("requesttojoin", async ({ user_id, user_r_id }) => {
     const userwant = await userModel.findById(user_id);
 
@@ -120,6 +118,14 @@ io.on("connection", (socket) => {
 
     io.to(user_id).emit("new_chat_from_request", savedbchat);
     io.to(user_r_id).emit("new_chat_from_request", savedbchat);
+  });
+
+  socket.on("rejectrequest", async ({ user_id, user_r_id }) => {
+    const userwant = await userModel.findById(user_r_id);
+    io.to(user_r_id).emit("new_reject", {
+      message: "han rechazado tu solicitud de chat",
+      userrejecter: userwant?.username
+    })
   });
 
   socket.on("jointochatroom", ({ chatid }) => {

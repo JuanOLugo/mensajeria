@@ -32,6 +32,20 @@ function RequestToJoinNotification({
         setRequests(newrequets)
       }
     }
+
+
+    if (e.target.name === "rechazar") {
+        if (User?.User) {
+          socket.emit("rejectrequest", {
+            user_id: User?.User._id,
+            user_r_id: userwantid,
+          });
+  
+          const newrequets = Requests.filter(r => r.userwantid !== userwantid)
+  
+          setRequests(newrequets)
+        }
+      }
   };
 
   return (
