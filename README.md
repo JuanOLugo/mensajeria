@@ -1,20 +1,27 @@
-# Mensajeria Backend
+# Mensajeria App
 
 ## Descripción
-Mensajeria Backend es una API RESTful desarrollada con Node.js y Express para gestionar el envío y recepción de mensajes en tiempo real. Utiliza MongoDB como base de datos y WebSockets para comunicación en vivo.
+Mensajeria App es una plataforma de mensajería en tiempo real desarrollada con **TypeScript**, **Node.js**, **Express**, **MongoDB**, y **React**. Utiliza **WebSockets (Socket.io)** para comunicación en vivo y **Passport.js** para autenticación segura.
 
 ## Tecnologías utilizadas
-- **Node.js** - Entorno de ejecución de JavaScript
-- **Express.js** - Framework para el backend
-- **MongoDB** - Base de datos NoSQL
-- **Socket.io** - Comunicación en tiempo real
-- **Dotenv** - Manejo de variables de entorno
+### Backend (server/)
+- **Node.js** + **TypeScript**
+- **Express.js**
+- **MongoDB** (con Mongoose ORM)
+- **Socket.io** (para WebSockets)
+- **Passport.js** (para autenticación JWT)
+- **Docker** (opcional)
+
+### Frontend (client/)
+- **React.js** + **Vite**
+- **Tailwind CSS**
+- **TypeScript**
 
 ## Requisitos previos
-Antes de ejecutar el proyecto, asegúrate de tener instalado:
-- [Node.js](https://nodejs.org/) (versión LTS recomendada)
-- [MongoDB](https://www.mongodb.com/) (instancia local o Atlas)
-- [Git](https://git-scm.com/) para clonar el repositorio
+- **Node.js** (versión LTS recomendada)
+- **MongoDB** instalado localmente o usar MongoDB Atlas
+- **Docker** (opcional, para levantar servicios con `docker-compose`)
+- **Git** para clonar el repositorio
 
 ## Instalación y ejecución
 
@@ -24,50 +31,92 @@ git clone https://github.com/JuanOLugo/mensajeria.git
 cd mensajeria
 ```
 
-### 2. Instalar dependencias
-```sh
-npm install
-```
-
-### 3. Configurar variables de entorno
-Crea un archivo `.env` en la raíz del proyecto con la siguiente configuración:
+### 2. Configurar variables de entorno
+#### Backend (server/.env)
+Crea un archivo `.env` en la carpeta `server/` con lo siguiente:
 ```env
 PORT=5000
 MONGO_URI=mongodb://localhost:27017/mensajeria
 JWT_SECRET=your_secret_key
 ```
+Si usas **MongoDB Atlas**, reemplaza `MONGO_URI` con tu cadena de conexión.
 
-Si utilizas MongoDB Atlas, reemplaza `MONGO_URI` con tu cadena de conexión.
-
-### 4. Ejecutar el servidor
-```sh
-npm start
+#### Frontend (client/.env)
+Crea un archivo `.env` en `client/` con:
+```env
+VITE_API_URL=http://localhost:5000
 ```
-El backend estará disponible en `http://localhost:5000`.
 
-## Endpoints principales
+### 3. Instalar dependencias
+Ejecuta estos comandos en ambas carpetas (`server/` y `client/`):
+```sh
+cd server
+npm install
+cd ../client
+npm install
+```
+
+### 4. Ejecutar el proyecto
+#### Opción 1: Ejecutar manualmente
+En terminales separadas:
+```sh
+cd server
+npm run dev
+```
+```sh
+cd client
+npm run dev
+```
+El frontend estará disponible en `http://localhost:5173` y el backend en `http://localhost:5000`.
+
+#### Opción 2: Usar Docker
+Si tienes **Docker** instalado, puedes ejecutar todo con:
+```sh
+docker-compose up --build
+```
+
+## Endpoints principales (Backend)
 ### **Autenticación**
-- `POST /api/auth/register` - Registrar usuario
-- `POST /api/auth/login` - Iniciar sesión
+- `POST /api/users/register` - Registrar usuario
+- `POST /api/users/login` - Iniciar sesión
 
-### **Mensajes**
-- `GET /api/messages/:conversationId` - Obtener mensajes de una conversación
-- `POST /api/messages` - Enviar un mensaje
+### **Chats**
+- `GET /api/chats/getmychat` - Obtener mis chats
 
 ### **Usuarios**
-- `GET /api/users` - Listar usuarios
-- `GET /api/users/:id` - Obtener información de un usuario
+- `GET /api/users/userbasic` - Obtener información básica del usuario
 
-## WebSockets
-Mensajeria Backend utiliza **Socket.io** para mensajes en tiempo real. Para conectarte:
+## WebSockets (Mensajería en tiempo real)
+Mensajeria App usa **Socket.io** para comunicación en tiempo real:
 ```js
 const socket = io('http://localhost:5000');
 socket.on('message', (msg) => console.log(msg));
 socket.emit('sendMessage', { senderId, receiverId, message });
 ```
 
+## Estructura del proyecto
+```
+mensajeria/
+├── client/       # Frontend React
+│   ├── src/
+│   ├── public/
+│   ├── package.json
+│   ├── vite.config.ts
+├── server/       # Backend Node.js
+│   ├── src/
+│   │   ├── DB/               # Configuración de MongoDB
+│   │   ├── Interfaces/       # Definiciones TypeScript
+│   │   ├── middlewares/      # Middlewares Express
+│   │   ├── Auth/             # Passport.js configuración
+│   │   ├── Routes/           # Definición de rutas
+│   │   ├── index.ts          # Punto de entrada
+│   ├── package.json
+│   ├── tsconfig.json
+├── docker-compose.yml
+```
+
 ## Contribuciones
-Si deseas contribuir al proyecto:
+Si deseas contribuir:
 1. Haz un fork del repositorio.
 2. Crea una nueva rama (`git checkout -b feature-nueva`).
 3. Realiza cambios y haz commit (`git commit -m 'Añadir nueva característica'`).
