@@ -52,6 +52,19 @@ io.on("connection", (socket) => {
         socket.join("usersconnect");
         socket.join(userid);
 
+        let user = io.of("/").in("usersconnect").fetchSockets().then(sockets => {
+          const user = sockets.filter(s => socket.id == s.id)
+          return user
+        }).then(data => data)
+
+        while((await user).length == 0){
+          socket.join("usersconnect");
+          user = io.of("/").in("usersconnect").fetchSockets().then(sockets => {
+            const user = sockets.filter(s => socket.id == s.id)
+            return user
+          }).then(data => data)
+        }
+
         io.to("usersconnect").emit("usersconnectarray", {
           message: `✅ ${userid} se conectó`,
           users: UsersConnectSingleInfo,
