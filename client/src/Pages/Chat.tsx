@@ -51,6 +51,10 @@ interface Inotification {
 
 export const socket = io("http://localhost:" + port, {
   autoConnect: false,
+  reconnectionDelayMax: 10000,
+  reconnection: true,
+  reconnectionAttempts: 5,
+  timeout: 60000,
 });
 const Chat = () => {
   const [UserNotification, setUserNotification] = useState<Inotification>();
@@ -103,6 +107,13 @@ const Chat = () => {
           SetUsersConnectAndDisconnect(e, User);
         });
       }
+
+      socket.on('disconnect', (reason) => {
+        console.log('Desconectado:', reason);
+        if (reason === 'io server disconnect') {
+          socket.connect();
+        }
+      });
 
       const usertoken = localStorage.getItem("user");
       if (usertoken) {
